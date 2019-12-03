@@ -7,7 +7,7 @@ inner join hours as h on (h.business_id=c.business_id)
 where city='Las Vegas' and category='Restaurants' ;
 
 --i. Do the two groups you chose to analyze have a different distribution of hours?
-select  c.business_id, stars, category, city, hours, review_count, latitude, longitude, 
+select  c.business_id, stars, category, city, hours, review_count, latitude, longitude,postal_code, address,
        case WHEN B.stars BETWEEN 2 AND 3 THEN '2-3 stars'
 	   WHEN B.stars BETWEEN 4 AND 5 THEN '4-5 stars'
 	   END AS star_rating
@@ -23,7 +23,7 @@ order by star_rating ASC;
 
 --ii. Do the two groups you chose to analyze have a different number of reviews?
 
-select  c.business_id, stars, category, city, hours, review_count, latitude, longitude, 
+select  c.business_id, stars, category, city, hours, review_count, latitude, longitude, postal_code, address,
        case WHEN B.stars BETWEEN 2 AND 3 THEN '2-3 stars'
 	   WHEN B.stars BETWEEN 4 AND 5 THEN '4-5 stars'
 	   END AS star_rating
@@ -34,19 +34,19 @@ where city='Las Vegas' and category='Restaurants' and (stars BETWEEN 2 AND 3 OR 
 group by review_count
 order by star_rating ASC; 
 
-+------------------------+-------+-------------+-----------+----------------------+--------------+----------+-----------+-------------+
-| business_id            | stars | category    | city      | hours                | review_count | latitude | longitude | star_rating |
-+------------------------+-------+-------------+-----------+----------------------+--------------+----------+-----------+-------------+
-| 1CP8aJa8ILlfM5deroar0Q |   3.0 | Restaurants | Las Vegas | Saturday|11:00-0:00  |          123 |  36.1003 |   -115.21 | 2-3 stars   |
-| 1aj4TG0eFq6NaPBKk6bK7Q |   4.0 | Restaurants | Las Vegas | Saturday|11:00-20:00 |          168 |  36.1933 |  -115.304 | 4-5 stars   |
-| 1ZnVfS-qP19upP_fwOhZsA |   4.0 | Restaurants | Las Vegas | Saturday|10:00-23:00 |          768 |  36.1267 |   -115.21 | 4-5 stars   |
-+------------------------+-------+-------------+-----------+----------------------+--------------+----------+-----------+-------------+
++------------------------+-------+-------------+-----------+----------------------+--------------+----------+-----------+-------------+---------------------------------+-------------+
+| business_id            | stars | category    | city      | hours                | review_count | latitude | longitude | postal_code | address                         | star_rating |
++------------------------+-------+-------------+-----------+----------------------+--------------+----------+-----------+-------------+---------------------------------+-------------+
+| 1CP8aJa8ILlfM5deroar0Q |   3.0 | Restaurants | Las Vegas | Saturday|11:00-0:00  |          123 |  36.1003 |   -115.21 | 89103       | 5045 W Tropicana Ave            | 2-3 stars   |
+| 1aj4TG0eFq6NaPBKk6bK7Q |   4.0 | Restaurants | Las Vegas | Saturday|11:00-20:00 |          168 |  36.1933 |  -115.304 | 89134       | 1910 Village Center Cir, Unit 1 | 4-5 stars   |
+| 1ZnVfS-qP19upP_fwOhZsA |   4.0 | Restaurants | Las Vegas | Saturday|10:00-23:00 |          768 |  36.1267 |   -115.21 | 89146       | 5040 Spring Mountain Rd         | 4-5 stars   |
++------------------------+-------+-------------+-----------+----------------------+--------------+----------+-----------+-------------+---------------------------------+-------------+
 
 --My review: Yes two groups have a different number of reviews. 4-5 stars group has a lot of more reviews. 
 
 --iii. Are you able to infer anything from the location data provided between these two groups? 
 
- select  c.business_id, stars, category, city, hours, review_count, latitude, longitude, 
+ select  c.business_id, stars, category, city, hours, review_count, latitude, longitude, postal_code, address,
        case WHEN B.stars BETWEEN 2 AND 3 THEN '2-3 stars'
 	   WHEN B.stars BETWEEN 4 AND 5 THEN '4-5 stars'
 	   END AS star_rating
@@ -57,15 +57,14 @@ where city='Las Vegas' and category='Restaurants' and (stars BETWEEN 2 AND 3 OR 
 group by latitude, longitude
 order by star_rating ASC; 
 
-+------------------------+-------+-------------+-----------+----------------------+--------------+----------+-----------+-------------+
-| business_id            | stars | category    | city      | hours                | review_count | latitude | longitude | star_rating |
-+------------------------+-------+-------------+-----------+----------------------+--------------+----------+-----------+-------------+
-| 1CP8aJa8ILlfM5deroar0Q |   3.0 | Restaurants | Las Vegas | Saturday|11:00-0:00  |          123 |  36.1003 |   -115.21 | 2-3 stars   |
-| 1ZnVfS-qP19upP_fwOhZsA |   4.0 | Restaurants | Las Vegas | Saturday|10:00-23:00 |          768 |  36.1267 |   -115.21 | 4-5 stars   |
-| 1aj4TG0eFq6NaPBKk6bK7Q |   4.0 | Restaurants | Las Vegas | Saturday|11:00-20:00 |          168 |  36.1933 |  -115.304 | 4-5 stars   |
-+------------------------+-------+-------------+-----------+----------------------+--------------+----------+-----------+-------------+
-
---My review: Two groups have a different locations. Two business_id have same longitude but their latitude are very different. 
++------------------------+-------+-------------+-----------+----------------------+--------------+----------+-----------+-------------+---------------------------------+-------------+
+| business_id            | stars | category    | city      | hours                | review_count | latitude | longitude | postal_code | address                         | star_rating |
++------------------------+-------+-------------+-----------+----------------------+--------------+----------+-----------+-------------+---------------------------------+-------------+
+| 1CP8aJa8ILlfM5deroar0Q |   3.0 | Restaurants | Las Vegas | Saturday|11:00-0:00  |          123 |  36.1003 |   -115.21 | 89103       | 5045 W Tropicana Ave            | 2-3 stars   |
+| 1ZnVfS-qP19upP_fwOhZsA |   4.0 | Restaurants | Las Vegas | Saturday|10:00-23:00 |          768 |  36.1267 |   -115.21 | 89146       | 5040 Spring Mountain Rd         | 4-5 stars   |
+| 1aj4TG0eFq6NaPBKk6bK7Q |   4.0 | Restaurants | Las Vegas | Saturday|11:00-20:00 |          168 |  36.1933 |  -115.304 | 89134       | 1910 Village Center Cir, Unit 1 | 4-5 stars   |
++------------------------+-------+-------------+-----------+----------------------+--------------+----------+-----------+-------------+---------------------------------+-------------
+--My review: Two groups have a different locations, postal code and address. 
 
 
 /* 2. Group business based on the ones that are open and the ones that are closed. What differences can you find between 
@@ -136,12 +135,29 @@ Ideas for analysis include: Parsing out keywords and business attributes for sen
 predicting the number of fans a user will have, and so on. These are just a few examples to get you started, so feel free to be creative and come up with your own problem you want to solve. Provide answers, in-line, 
 to all of the following:
 i. Indicate the type of analysis you chose to do:
+   A business who will open want to decide which at city. They want to learn which city is popular for a restaurant, Toronto or Las Vegas.    
          
-         
-ii. Write 1-2 brief paragraphs on the type of data you will need for your analysis and why you chose that data:
-                           
+--ii. Write 1-2 brief paragraphs on the type of data you will need for your analysis and why you chose that data:
+    I need some columns which are city, category, average stars, average review_count and number of restaurants. Because, to understand cities and restaurants of cities very important for opening new busineses.
+    And you can see at below;
+    -Toronto has 10 restaurants but their average stars and verage review_count very less. 
+    -Number of Las Vegas' restaurants is less than Toronto's restaurant. 
+    -However, Restaurants have a lot of review and stars in Las Vegas. 
+    -This case shows, restaurants of Las Vegas are more popular than Toronto. 
                   
-iii. Output of your finished dataset:
+--iii. Output of your finished dataset:*/
+
++-----------+-------------+------------+-------------------+-----------+
+| city      | category    | avg(stars) | avg(review_count) | count(id) |
++-----------+-------------+------------+-------------------+-----------+
+| Toronto   | Restaurants |        3.4 |              29.9 |        10 |
+| Las Vegas | Restaurants |      3.875 |             265.5 |         4 |
++-----------+-------------+------------+-------------------+-----------+    
          
-         
-iv. Provide the SQL code you used to create your final dataset:
+--iv. Provide the SQL code you used to create your final dataset:
+select  city, category, avg(stars), avg(review_count), count(id)
+from business as b 
+left join category as c on (c.business_id= b.id)
+where category='Restaurants' and city in ('Toronto','Las Vegas')
+group by city
+order by count(id) desc;
