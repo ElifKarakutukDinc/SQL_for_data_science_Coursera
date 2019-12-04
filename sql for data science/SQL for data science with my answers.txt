@@ -204,7 +204,7 @@ limit 3;
 	Please explain your findings and interpretation of the results:
 
 I have two answers that I did different ways. 
---A-1: With Corelation Function
+--A-1: With Correlation Function
 
 select avg( (review_count - avg_rc) * (fans - avg_f) )*avg( (review_count - avg_rc) * (fans - avg_f) )/(var_rc*var_f) as R
 from user, (select 
@@ -224,7 +224,7 @@ from user, (select
 | 0.437136492915 |
 +----------------+
 
---Corelation: As r approaches -1 or 1, the strength of the relationship increases. Fans and review_count between has a relation but not strong. They not affect each others directly.
+--Correlation: As r approaches -1 or 1, the strength of the relationship increases. Fans and review_count between has a relation but not strong. They not affect each others directly.
 
 --A-2:Basic Way
 --You can show at below, fans values which are at cross high review_count lines change. Some lines is high but some lines is very less. This case shows, they not affect each others directly
@@ -325,9 +325,10 @@ Key:
 76% - 100% - Strong relationship
 	
 	SQL code used to arrive at answer:
---if we just look corelation, this query (A-1) that is at below is enough. But if we just look listed or marked as “useful” or “funny” we should type other query (A-2). 
+--We have two question. First level want power of corrlation between fans and useful or funny. Firstly, I looked correlation. 
+First Level : 
 
-select avg( (fans - avg_f) * (useful - avg_u) )*avg( (fans - avg_f) * (useful - avg_u) )/(var_f*var_u) as R
+select (avg( (fans - avg_f) * (useful - avg_u) )*avg( (fans - avg_f) * (useful - avg_u) ))/(var_f*var_u) as R
 from user, (select 
       avg_f,
       avg_u,
@@ -337,8 +338,8 @@ from user, (select
           avg(fans) as avg_f, 
           avg(useful) as avg_u
           from user)
-  )order by fans desc
-  limit 10;
+  )order by fans desc;
+
 
 select avg( (fans - avg_f) * (funny - avg_fu) )*avg( (fans - avg_f) * (funny - avg_fu) )/(var_f*var_fu) as R
 from user, (select 
@@ -351,18 +352,19 @@ from user, (select
           avg(funny) as avg_fu
           from user)
   )
-order by fans desc
-  limit 10;
+order by fans desc;
 
 	
 	Copy and Paste the Result Below:
 
+for useful: 
 +----------------+
 |              R |
 +----------------+
 | 0.157528494749 |
 +----------------+
 
+For funny:
 +---------------+
 |             R |
 +---------------+
@@ -371,8 +373,33 @@ order by fans desc
 
 	Please explain your findings and interpretation of the results:
 	
-	
-	
+You can see R values 0.15 and 0.12. It's mean each other don't have Strong relationship. 	
+
+Second Level: Second question want, we find 10 users who have highest number of fans and we look just they are listed or not listed. 
+When I look table values useful and funny don't have null values but they have zero values. So I saw, 10 users are marked useful and funny. 
+Anyone doesn't have zero value. 
+
+Select id, fans, useful, funny
+from user 
+order by fans desc
+limit 10;
+
+the Result Below:
+
++------------------------+------+--------+--------+
+| id                     | fans | useful |  funny |
++------------------------+------+--------+--------+
+| -9I98YbNQnLdAmcYfb324Q |  503 |   3226 |   2554 |
+| -8EnCioUmDygAbsYZmTeRQ |  497 |    257 |    138 |
+| --2vR0DIsmQ6WfcSzKWigw |  311 | 122921 | 122419 |
+| -G7Zkl1wIWBBmD0KRy_sCw |  253 |  17524 |   2324 |
+| -0IiMAZI2SsQ7VmyzJjokQ |  173 |   4834 |   6646 |
+| -g3XIcCb2b-BD0QBCcq2Sw |  159 |     48 |     13 |
+| -9bbDysuiWeo2VShFJJtcw |  133 |   1062 |    672 |
+| -FZBTkAZEXoP7CYvRV2ZwQ |  126 |   9363 |   9361 |
+| -9da1xk7zgnnfO1uTVYGkA |  124 |   9851 |   7606 |
+| -lh59ko3dxChBSZ9U7LfUw |  120 |    455 |    150 |
++------------------------+------+--------+--------+
 
 Part 2: Inferences and Analysis
 
