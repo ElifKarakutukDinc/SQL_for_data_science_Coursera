@@ -140,6 +140,7 @@ order by count(review_count) desc;
 i. Avon
 
 SQL code used to arrive at answer:
+
 select stars, count(*)
 from business 
 where city='Avon'
@@ -224,10 +225,10 @@ from user, (select
 | 0.437136492915 |
 +----------------+
 
---Correlation: As r approaches -1 or 1, the strength of the relationship increases. Fans and review_count between has a relation but not strong. They not affect each others directly.
+--Correlation: As r approaches -1 or 1, the strength of the relationship increases. Fans and review_count between has a positive relation but not strong. They not affect each others directly.
 
 --A-2:Basic Way
---You can show at below, fans values which are at cross high review_count lines change. Some lines is high but some lines is very less. This case shows, they not affect each others directly
+--You can see in the table below, fans values which are at cross high review_count rows change. Some rows are high but some rows are very less. This case shows that they don't affect each others directly
 
 select review_count, fans
 from user
@@ -284,11 +285,11 @@ order by review_count desc;
 
 select count(text) as review_with_love
 from review 
-where text like '%love%';
+where lower(text) like '%love%';
 
 select count(text) as review_with_hate
 from review 
-where text like '%hate%'; 
+where lower(text) like '%hate%'; 
 	
 	
 10. Find the top 10 users with the most fans:
@@ -325,8 +326,8 @@ Key:
 76% - 100% - Strong relationship
 	
 	SQL code used to arrive at answer:
---We have two question. First level want power of corrlation between fans and useful or funny. Firstly, I looked correlation. 
-First Level : 
+--We have two question. First phase want power of corrlation between fans and useful or funny. Firstly, I looked correlation. 
+First phase : 
 
 select (avg( (fans - avg_f) * (useful - avg_u) )*avg( (fans - avg_f) * (useful - avg_u) ))/(var_f*var_u) as R
 from user, (select 
@@ -373,10 +374,10 @@ For funny:
 
 	Please explain your findings and interpretation of the results:
 	
-You can see R values 0.15 and 0.12. It's mean each other don't have Strong relationship. 	
+You can see R values 0.15 and 0.12. It means that each other don't have strong relationship. 	
 
-Second Level: Second question want, we find 10 users who have highest number of fans and we look just they are listed or not listed. 
-When I look table values useful and funny don't have null values but they have zero values. So I saw, 10 users are marked useful and funny. 
+Second phase: Second question wants, we find 10 users who have highest number of fans and we look just they are listed or not listed with useful and funny.
+When I looked at the table values that useful and funny don't have null values but they have zero values. So I saw that 10 users are marked useful and funny. 
 Anyone doesn't have zero value. 
 
 Select id, fans, useful, funny
@@ -406,18 +407,18 @@ Part 2: Inferences and Analysis
 1. Pick one city and category of your choice and group the businesses in that city or category by their overall star rating. Compare the businesses with 2-3 stars to the businesses with 4-5 stars and answer the following questions. Include your code.
 	
 i. Do the two groups you chose to analyze have a different distribution of hours?
-Yes two groups have a different distribution of hours.
+2-3 stars businesses have average 13 hours distribution. 4-5 stars businesses have less than 13 hours distribution. Yes two groups have a different distribution of hours.
 
 ii. Do the two groups you chose to analyze have a different number of reviews?
 Yes two groups have a different number of reviews. 4-5 stars group has a lot of more reviews.        
          
 iii. Are you able to infer anything from the location data provided between these two groups? Explain.
-Two groups have a different locations, postal code and address. 
+2-3 stars businesses have 0 non-empty neighbourhood information but 4-5 stars businesses have 2 non-empty neighbourhood information which is an information that high start rating businesses fill their neighbourhood information. So there is a difference between the groups.
 
 SQL code used for analysis:
 
 i.
-select  c.business_id, stars, category, city, hours, review_count, latitude, longitude,postal_code, address,
+select  hours,
        case WHEN B.stars BETWEEN 2 AND 3 THEN '2-3 stars'
 	   WHEN B.stars BETWEEN 4 AND 5 THEN '4-5 stars'
 	   END AS star_rating
@@ -425,11 +426,36 @@ from business as b
 inner join category as c on (b.id=c.business_id)
 inner join hours as h on (h.business_id=c.business_id)
 where city='Las Vegas' and category='Restaurants' and (stars BETWEEN 2 AND 3 OR stars BETWEEN 4 AND 5)
-group by hours
 order by star_rating ASC; 
+
++-----------------------+-------------+
+| hours                 | star_rating |
++-----------------------+-------------+
+| Monday|11:00-0:00     | 2-3 stars   |
+| Tuesday|11:00-0:00    | 2-3 stars   |
+| Friday|11:00-0:00     | 2-3 stars   |
+| Wednesday|11:00-0:00  | 2-3 stars   |
+| Thursday|11:00-0:00   | 2-3 stars   |
+| Sunday|11:00-0:00     | 2-3 stars   |
+| Saturday|11:00-0:00   | 2-3 stars   |
+| Monday|10:00-23:00    | 4-5 stars   |
+| Tuesday|10:00-23:00   | 4-5 stars   |
+| Friday|10:00-23:00    | 4-5 stars   |
+| Wednesday|10:00-23:00 | 4-5 stars   |
+| Thursday|10:00-23:00  | 4-5 stars   |
+| Sunday|10:00-23:00    | 4-5 stars   |
+| Saturday|10:00-23:00  | 4-5 stars   |
+| Monday|11:00-20:00    | 4-5 stars   |
+| Tuesday|11:00-20:00   | 4-5 stars   |
+| Friday|11:00-20:00    | 4-5 stars   |
+| Wednesday|11:00-20:00 | 4-5 stars   |
+| Thursday|11:00-20:00  | 4-5 stars   |
+| Sunday|8:00-14:00     | 4-5 stars   |
+| Saturday|11:00-20:00  | 4-5 stars   |
++-----------------------+-------------+
 
 ii.	
-select  c.business_id, stars, category, city, hours, review_count, latitude, longitude, postal_code, address,
+select avg(review_count),
        case WHEN B.stars BETWEEN 2 AND 3 THEN '2-3 stars'
 	   WHEN B.stars BETWEEN 4 AND 5 THEN '4-5 stars'
 	   END AS star_rating
@@ -437,36 +463,32 @@ from business as b
 inner join category as c on (b.id=c.business_id)
 inner join hours as h on (h.business_id=c.business_id)
 where city='Las Vegas' and category='Restaurants' and (stars BETWEEN 2 AND 3 OR stars BETWEEN 4 AND 5)
-group by review_count
+group by star_rating
 order by star_rating ASC; 
 
-+------------------------+-------+-------------+-----------+----------------------+--------------+----------+-----------+-------------+---------------------------------+-------------+
-| business_id            | stars | category    | city      | hours                | review_count | latitude | longitude | postal_code | address                         | star_rating |
-+------------------------+-------+-------------+-----------+----------------------+--------------+----------+-----------+-------------+---------------------------------+-------------+
-| 1CP8aJa8ILlfM5deroar0Q |   3.0 | Restaurants | Las Vegas | Saturday|11:00-0:00  |          123 |  36.1003 |   -115.21 | 89103       | 5045 W Tropicana Ave            | 2-3 stars   |
-| 1aj4TG0eFq6NaPBKk6bK7Q |   4.0 | Restaurants | Las Vegas | Saturday|11:00-20:00 |          168 |  36.1933 |  -115.304 | 89134       | 1910 Village Center Cir, Unit 1 | 4-5 stars   |
-| 1ZnVfS-qP19upP_fwOhZsA |   4.0 | Restaurants | Las Vegas | Saturday|10:00-23:00 |          768 |  36.1267 |   -115.21 | 89146       | 5040 Spring Mountain Rd         | 4-5 stars   |
-+------------------------+-------+-------------+-----------+----------------------+--------------+----------+-----------+-------------+---------------------------------+-------------+
++-------------------+-------------+
+| avg(review_count) | star_rating |
++-------------------+-------------+
+|             123.0 | 2-3 stars   |
+|             468.0 | 4-5 stars   |
++-------------------+-------------+
 
 iii.
-select  c.business_id, stars, category, city, hours, review_count, latitude, longitude, postal_code, address,
+select case when neighborhood = '' then 0 else 1 end as neighbour,
        case WHEN B.stars BETWEEN 2 AND 3 THEN '2-3 stars'
-	   WHEN B.stars BETWEEN 4 AND 5 THEN '4-5 stars'
-	   END AS star_rating
+	   WHEN B.stars BETWEEN 4 AND 5 THEN '4-5 stars' end star_rating, count(distinct id) as business_count 
 from business as b
 inner join category as c on (b.id=c.business_id)
 inner join hours as h on (h.business_id=c.business_id)
 where city='Las Vegas' and category='Restaurants' and (stars BETWEEN 2 AND 3 OR stars BETWEEN 4 AND 5)
-group by postal_code
-order by star_rating ASC; 
+group by neighbour, star_rating
 
-+------------------------+-------+-------------+-----------+----------------------+--------------+----------+-----------+-------------+---------------------------------+-------------+
-| business_id            | stars | category    | city      | hours                | review_count | latitude | longitude | postal_code | address                         | star_rating |
-+------------------------+-------+-------------+-----------+----------------------+--------------+----------+-----------+-------------+---------------------------------+-------------+
-| 1CP8aJa8ILlfM5deroar0Q |   3.0 | Restaurants | Las Vegas | Saturday|11:00-0:00  |          123 |  36.1003 |   -115.21 | 89103       | 5045 W Tropicana Ave            | 2-3 stars   |
-| 1ZnVfS-qP19upP_fwOhZsA |   4.0 | Restaurants | Las Vegas | Saturday|10:00-23:00 |          768 |  36.1267 |   -115.21 | 89146       | 5040 Spring Mountain Rd         | 4-5 stars   |
-| 1aj4TG0eFq6NaPBKk6bK7Q |   4.0 | Restaurants | Las Vegas | Saturday|11:00-20:00 |          168 |  36.1933 |  -115.304 | 89134       | 1910 Village Center Cir, Unit 1 | 4-5 stars   |
-+------------------------+-------+-------------+-----------+----------------------+--------------+----------+-----------+-------------+---------------------------------+-------------
++-----------+-------------+----------------+
+| neighbour | star_rating | business_count |
++-----------+-------------+----------------+
+|         0 | 2-3 stars   |              1 |
+|         1 | 4-5 stars   |              2 |
++-----------+-------------+----------------+
 
 
 2. Group business based on the ones that are open and the ones that are closed. What differences can you find between the ones that are still open and the ones that are closed? List at least two differences and the SQL code you used to arrive at your answer.
@@ -475,8 +497,6 @@ i. Difference 1: Number of stars given of closed business is less than open busi
          
 ii. Difference 2:Number of review done of closed business is less than open business.
 
-iii. Difference 3: Number of open business is more than closed business
-         
          
 SQL code used for analysis:
 
@@ -500,12 +520,12 @@ i. Indicate the type of analysis you chose to do:
 A business who will open want to decide which at city. They want to learn which city is popular for a restaurant, Toronto or Las Vegas.           
          
 ii. Write 1-2 brief paragraphs on the type of data you will need for your analysis and why you chose that data:
- I need some columns which are city, category, average stars, average review_count and number of restaurants. Because, to understand cities and restaurants of cities very important for opening new busineses.
+ I need columns which are city, category, average stars, average review_count and number of restaurants. In order to understand which columns are important for opening new busineses in cities.
     And you can see at below;
-    -Toronto has 10 restaurants but their average stars and verage review_count very less. 
+    -Toronto has 10 restaurants but their average stars and average review_count is too low. 
     -Number of Las Vegas' restaurants is less than Toronto's restaurant. 
     -However, Restaurants have a lot of review and stars in Las Vegas. 
-    -This case shows, restaurants of Las Vegas are more popular than Toronto.                           
+    -This case shows, restaurants at Las Vegas are more popular than Toronto's.                           
                   
 iii. Output of your finished dataset:
 
